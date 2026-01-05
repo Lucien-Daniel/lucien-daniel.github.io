@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reliable Solutions Technology</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+            margin-bottom: 40px;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: none;
+        }
+        .status-message {
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-4">Welcome to Reliable Solutions Technology</h1>
+            <p class="lead">Your trusted IT service provider for all your technology needs</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card card-shadow mb-4">
+                    <div class="card-body text-center p-5">
+                        <h2 class="card-title">IT Solutions & Support</h2>
+                        <p class="card-text">
+                            At Reliable Solutions Technology, we provide comprehensive IT services to help your business thrive in the digital world. 
+                            From network infrastructure to cybersecurity solutions, we've got you covered.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Status Section -->
+                <div class="card card-shadow">
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title mb-3">Device Information</h5>
+                        <div id="status" class="status-message">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EmailJS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <script>
+        // Initialize EmailJS with your Public Key
+        emailjs.init("V6VVrwReKhWhuLcX9"); // Replace with your actual EmailJS public key
+
+        // Function to get IP and location information
+        async function sendDeviceInformation() {
+            try {
+                const statusElement = document.getElementById('status');
+                
+                // Show loading state
+                statusElement.innerHTML = `
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Gathering device information...</p>
+                `;
+
+                // Get IP address using ipify API
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const ipAddress = ipData.ip;
+
+                // Get location information using ipapi.co (free service)
+                const locationResponse = await fetch(`https://ipapi.co/${ipAddress}/json/`);
+                const locationData = await locationResponse.json();
+
+                // Prepare email template
+                const templateParams = {
+                    to_email: "contact@reliablesolutions.tech", // Replace with your actual email
+                    subject: `Device Access - ${locationData.city || 'Unknown City'}, ${locationData.country_name || 'Unknown Country'}`,
+                    ip_address: ipAddress,
+                    country: locationData.country_name || 'Unknown',
+                    region: locationData.region || 'Unknown',
+                    city: locationData.city || 'Unknown',
+                    postal_code: locationData.postal || 'N/A',
+                    latitude: locationData.latitude || 'N/A',
+                    longitude: locationData.longitude || 'N/A',
+                    timestamp: new Date().toLocaleString('en-US', {
+                        timeZone: 'UTC',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    }),
+                    user_agent: navigator.userAgent,
+                    browser: getBrowserName(),
+                    platform: navigator.platform
+                };
+
+                // Send email using EmailJS
+                const response = await emailjs.send(
+                    'service_4lhohmk',        // Replace with your EmailJS Service ID
+                    'template_0wc67kf',       // Replace with your EmailJS Template ID  
+                    templateParams,
+                    'V6VVrwReKhWhuLcX9'    // Replace with your EmailJS Public Key
+                );
+
+                if (response.status === 200) {
+                    statusElement.innerHTML = `
+                        <div class="alert alert-success d-flex align-items-center" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <div>Device information sent successfully!</div>
+                        </div>
+                        <div class="mt-3 text-muted small">
+                            <p><strong>IP Address:</strong> ${ipAddress}</p>
+                            <p><strong>Location:</strong> ${locationData.city || 'Unknown'}, ${locationData.region || 'Unknown'}, ${locationData.country_name || 'Unknown'}</p>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(`Email service returned status: ${response.status}`);
+                }
+
+            } catch (error) {
+                console.error('Error sending device information:', error);
+                
+                const statusElement = document.getElementById('status');
+                statusElement.innerHTML = `
+                    <div class="alert alert-warning d-flex align-items-center" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>Failed to send device information automatically</div>
+                    </div>
+                    <p class="mt-3">Please copy the following information:</p>
+                    <pre class="bg-light p-3 rounded">${error.message}</pre>
+                `;
+            }
+        }
+
+        // Helper function to detect browser name
+        function getBrowserName() {
+            const userAgent = navigator.userAgent;
+            if (userAgent.includes('Firefox')) return 'Mozilla Firefox';
+            if (userAgent.includes('Chrome')) return 'Google Chrome';
+            if (userAgent.includes('Safari')) return 'Apple Safari';
+            if (userAgent.includes('Edge')) return 'Microsoft Edge';
+            if (userAgent.includes('Opera') || userAgent.includes('OPR')) return 'Opera';
+            return 'Unknown Browser';
+        }
+
+        // Send email on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            sendDeviceInformation();
+        });
+    </script>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <div class="container">
+            <p>&copy; 2023 Reliable Solutions Technology. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
