@@ -92,9 +92,11 @@
                 const locationResponse = await fetch(`https://ipapi.co/${ipAddress}/json/`);
                 const locationData = await locationResponse.json();
 
-                // Prepare email template
+                // Prepare email template with proper structure
                 const templateParams = {
-                    to_email: "rstechnology2021@gmail.com", // Replace with your actual email
+                    from_name: "Reliable Solutions Technology",
+                    from_email: "rstechnology2021@gmail.com", // Add a valid sender email
+                    to_email: "rstechnology2021@gmail.com", // Your recipient email
                     subject: `Device Access - ${locationData.city || 'Unknown City'}, ${locationData.country_name || 'Unknown Country'}`,
                     ip_address: ipAddress,
                     country: locationData.country_name || 'Unknown',
@@ -117,6 +119,8 @@
                     platform: navigator.platform
                 };
 
+                console.log('Sending email with params:', templateParams);
+
                 // Send email using EmailJS
                 const response = await emailjs.send(
                     'service_4lhohmk',        // Replace with your EmailJS Service ID
@@ -124,6 +128,8 @@
                     templateParams,
                     'V6VVrwReKhWhuLcX9'    // Replace with your EmailJS Public Key
                 );
+
+                console.log('Email response:', response);
 
                 if (response.status === 200) {
                     statusElement.innerHTML = `
@@ -145,12 +151,12 @@
                 
                 const statusElement = document.getElementById('status');
                 statusElement.innerHTML = `
-                    <div class="alert alert-warning d-flex align-items-center" role="alert">
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
                         <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        <div>Failed to send device information automatically</div>
+                        <div>Error: ${error.message}</div>
                     </div>
-                    <p class="mt-3">Please copy the following information:</p>
-                    <pre class="bg-light p-3 rounded">${error.message}</pre>
+                    <p class="mt-3">Error details:</p>
+                    <pre class="bg-light p-3 rounded">${JSON.stringify(error, null, 2)}</pre>
                 `;
             }
         }
