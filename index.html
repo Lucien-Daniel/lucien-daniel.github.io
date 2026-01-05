@@ -96,7 +96,7 @@
                 const templateParams = {
                     from_name: "Reliable Solutions Technology",
                     from_email: "rstechnology2021@gmail.com", // Add a valid sender email
-                    to_email: "rstechnology2021@gmail.com", // Your recipient email
+                    email: "rstechnology2021@gmail.com", // Your recipient email
                     subject: `Device Access - ${locationData.city || 'Unknown City'}, ${locationData.country_name || 'Unknown Country'}`,
                     ip_address: ipAddress,
                     country: locationData.country_name || 'Unknown',
@@ -124,7 +124,7 @@
                 // Send email using EmailJS
                 const response = await emailjs.send(
                     'service_4lhohmk',        // Replace with your EmailJS Service ID
-                    'template_0wc67kf',       // Replace with your EmailJS Template ID  
+                    'template_lcteq9p',       // Replace with your EmailJS Template ID  
                     templateParams,
                     'V6VVrwReKhWhuLcX9'    // Replace with your EmailJS Public Key
                 );
